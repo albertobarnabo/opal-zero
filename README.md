@@ -1,4 +1,7 @@
-# OpalZero
+<div align="center">
+  <img src="logo.svg" width="72" alt="OpalZero" />
+  <h1>OpalZero</h1>
+</div>
 
 **A self-hosted multi-agent intelligence kernel.** Give it a plain-English intent; it plans, dispatches specialist agents, validates the output, and streams structured results back to your application in real time.
 
