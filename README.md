@@ -35,10 +35,24 @@ The result is not a chat response. It is a **structured data payload** — a map
 
 **1. Start the server:**
 
+With OpenAI:
+
 ```bash
 docker run \
   -e OPENAI_API_KEY=sk-... \
   -e TAVILY_API_KEY=tvly-... \
+  -p 8000:8000 \
+  ghcr.io/albertobarnabo/opalzero-server:latest
+```
+
+Or fully local with Ollama (no API key required):
+
+```bash
+ollama pull llama3.1:8b   # any model that supports tool calling
+
+docker run \
+  -e AXION_PROVIDER=ollama \
+  -e OPALZERO_MODEL=llama3.1:8b \
   -p 8000:8000 \
   ghcr.io/albertobarnabo/opalzero-server:latest
 ```
@@ -86,6 +100,7 @@ const { run, status, cards, activeAgent } = useOpalZero({ client });
 | **Human-in-the-loop** | Agents can pause and ask for clarification; your app answers and execution resumes |
 | **File context** | Upload CSV, JSON, PDF, or images; agents can reference them during execution |
 | **Export** | Any mission can be exported as Markdown, CSV, or HTML |
+| **Multi-provider** | Run on OpenAI, Anthropic Claude, Ollama local models, or any OpenAI-compatible endpoint (Groq, Mistral, Together…) |
 | **Self-hosted** | Runs as a single Docker container; your data never leaves your infrastructure |
 
 ---
@@ -169,6 +184,51 @@ client.configStatus()                       // → ConfigStatus
 
 ---
 
+## Provider backends
+
+OpalZero supports multiple AI backends. Switch with `AXION_PROVIDER` — no code changes required.
+
+**OpenAI (default)**
+
+```bash
+AXION_PROVIDER=openai OPALZERO_MODEL=gpt-4o-mini OPENAI_API_KEY=sk-... cargo run --bin opalzero-server
+```
+
+**Ollama — fully local, no API key**
+
+```bash
+ollama pull llama3.1:8b
+AXION_PROVIDER=ollama OPALZERO_MODEL=llama3.1:8b cargo run --bin opalzero-server
+```
+
+OpalZero requires a model that supports tool calling. Recommended:
+
+| Model | Size | Notes |
+|---|---|---|
+| `llama3.1:8b` | 4.7 GB | Best balance of speed and quality |
+| `mistral-nemo` | 7.1 GB | Strong reasoning, great for Analyst tasks |
+| `qwen2.5:7b` | 4.7 GB | Fast, reliable tool-call support |
+
+**Anthropic Claude**
+
+```bash
+AXION_PROVIDER=claude OPALZERO_MODEL=claude-sonnet-4-5 ANTHROPIC_API_KEY=sk-ant-... cargo run --bin opalzero-server
+```
+
+Haiku is automatically used for cheaper sub-tasks while your selected model handles planning and analysis.
+
+**Any OpenAI-compatible endpoint** (Groq, Together, Mistral, LM Studio…)
+
+```bash
+AXION_PROVIDER=compatible \
+  AXION_BASE_URL=https://api.groq.com/openai/v1 \
+  OPALZERO_MODEL=llama-3.3-70b-versatile \
+  AXION_API_KEY=gsk_... \
+  cargo run --bin opalzero-server
+```
+
+---
+
 ## Self-hosting
 
 OpalZero is designed to run on your own infrastructure. The server is a single Rust binary wrapped in a minimal Docker image — no external database, no telemetry, no callbacks home. Missions and uploads persist to local volumes you control.
@@ -179,9 +239,16 @@ services:
     image: ghcr.io/albertobarnabo/opalzero-server:latest
     ports: ["8000:8000"]
     environment:
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
-      TAVILY_API_KEY: ${TAVILY_API_KEY:-}
-      OPALZERO_API_KEY: ${OPALZERO_API_KEY:-}   # optional API key auth
+      # Provider — "openai" (default) | "claude" | "ollama" | "compatible"
+      AXION_PROVIDER: ${AXION_PROVIDER:-openai}
+      OPALZERO_MODEL: ${OPALZERO_MODEL:-gpt-4o-mini}
+      # Keys — only set the one(s) your provider needs
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      AXION_API_KEY: ${AXION_API_KEY:-}         # for "compatible" endpoints
+      AXION_BASE_URL: ${AXION_BASE_URL:-}       # for "compatible" endpoints
+      TAVILY_API_KEY: ${TAVILY_API_KEY:-}       # enables web search
+      OPALZERO_API_KEY: ${OPALZERO_API_KEY:-}   # optional inbound auth
     volumes:
       - missions:/app/missions
       - uploads:/app/uploads
