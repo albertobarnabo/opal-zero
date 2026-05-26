@@ -5,6 +5,8 @@
 
 **A self-hosted multi-agent intelligence kernel.** Give it a plain-English intent; it plans, dispatches specialist agents, validates the output, and streams structured results back to your application in real time.
 
+**[→ Official website & docs](https://albertobarnabo.com/opal-zero/)**
+
 ---
 
 ## What it does
