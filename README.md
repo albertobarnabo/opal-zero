@@ -62,9 +62,9 @@ for await (const event of client.execute("Compare the top 3 EVs under $60k")) {
 **Or with React:**
 
 ```tsx
-import { useMission } from "opal-zero/react";
+import { useOpalZero } from "opal-zero/react";
 
-const { run, status, cards, activeAgent } = useMission({ client });
+const { run, status, cards, activeAgent } = useOpalZero({ client });
 
 // cards is BentoCard[] — typed, ready to render, no parsing needed
 ```
