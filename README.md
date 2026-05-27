@@ -1,6 +1,6 @@
 <div align="center">
   <img src="logo.svg" width="72" alt="OpalZero" />
-  <h1>OpalZero</h1>
+  <h1>Opal Zero</h1>
 </div>
 
 **A self-hosted multi-agent intelligence kernel.** Give it a plain-English intent; it plans, dispatches specialist agents, validates the output, and streams structured results back to your application in real time.
@@ -53,7 +53,7 @@ Or fully local with Ollama (no API key required):
 ollama pull llama3.1:8b   # any model that supports tool calling
 
 docker run \
-  -e AXION_PROVIDER=ollama \
+  -e OPALZERO_PROVIDER=ollama \
   -e OPALZERO_MODEL=llama3.1:8b \
   -p 8000:8000 \
   ghcr.io/albertobarnabo/opalzero-server:latest
@@ -188,19 +188,19 @@ client.configStatus()                       // → ConfigStatus
 
 ## Provider backends
 
-OpalZero supports multiple AI backends. Switch with `AXION_PROVIDER` — no code changes required.
+OpalZero supports multiple AI backends. Switch with `OPALZERO_PROVIDER` — no code changes required.
 
 **OpenAI (default)**
 
 ```bash
-AXION_PROVIDER=openai OPALZERO_MODEL=gpt-4o-mini OPENAI_API_KEY=sk-... cargo run --bin opalzero-server
+OPALZERO_PROVIDER=openai OPALZERO_MODEL=gpt-4o-mini OPENAI_API_KEY=sk-... cargo run --bin opalzero-server
 ```
 
 **Ollama — fully local, no API key**
 
 ```bash
 ollama pull llama3.1:8b
-AXION_PROVIDER=ollama OPALZERO_MODEL=llama3.1:8b cargo run --bin opalzero-server
+OPALZERO_PROVIDER=ollama OPALZERO_MODEL=llama3.1:8b cargo run --bin opalzero-server
 ```
 
 OpalZero requires a model that supports tool calling. Recommended:
@@ -214,7 +214,7 @@ OpalZero requires a model that supports tool calling. Recommended:
 **Anthropic Claude**
 
 ```bash
-AXION_PROVIDER=claude OPALZERO_MODEL=claude-sonnet-4-5 ANTHROPIC_API_KEY=sk-ant-... cargo run --bin opalzero-server
+OPALZERO_PROVIDER=claude OPALZERO_MODEL=claude-sonnet-4-5 ANTHROPIC_API_KEY=sk-ant-... cargo run --bin opalzero-server
 ```
 
 Haiku is automatically used for cheaper sub-tasks while your selected model handles planning and analysis.
@@ -222,10 +222,9 @@ Haiku is automatically used for cheaper sub-tasks while your selected model hand
 **Any OpenAI-compatible endpoint** (Groq, Together, Mistral, LM Studio…)
 
 ```bash
-AXION_PROVIDER=compatible \
-  AXION_BASE_URL=https://api.groq.com/openai/v1 \
+OPALZERO_PROVIDER=compatible \
+  OPALZERO_BASE_URL=https://api.groq.com/openai/v1 \
   OPALZERO_MODEL=llama-3.3-70b-versatile \
-  AXION_API_KEY=gsk_... \
   cargo run --bin opalzero-server
 ```
 
@@ -242,15 +241,13 @@ services:
     ports: ["8000:8000"]
     environment:
       # Provider — "openai" (default) | "claude" | "ollama" | "compatible"
-      AXION_PROVIDER: ${AXION_PROVIDER:-openai}
+      OPALZERO_PROVIDER: ${OPALZERO_PROVIDER:-openai}
       OPALZERO_MODEL: ${OPALZERO_MODEL:-gpt-4o-mini}
       # Keys — only set the one(s) your provider needs
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
-      AXION_API_KEY: ${AXION_API_KEY:-}         # for "compatible" endpoints
-      AXION_BASE_URL: ${AXION_BASE_URL:-}       # for "compatible" endpoints
-      TAVILY_API_KEY: ${TAVILY_API_KEY:-}       # enables web search
-      OPALZERO_API_KEY: ${OPALZERO_API_KEY:-}   # optional inbound auth
+      OPALZERO_BASE_URL: ${OPALZERO_BASE_URL:-}       # for "compatible" endpoints
+      TAVILY_API_KEY: ${TAVILY_API_KEY:-}             # enables web search
     volumes:
       - missions:/app/missions
       - uploads:/app/uploads
