@@ -1,11 +1,51 @@
 <div align="center">
   <img src="logo.svg" width="72" alt="OpalZero" />
   <h1>Opal Zero</h1>
+  <p><strong>Want to use LLMs but you're not an AI engineer?<br/>OpalZero is the AI engineer — you just write 5 lines of code.</strong></p>
+  <p>
+    <a href="https://albertobarnabo.com/opal-zero/">Website &amp; docs</a>
+    &nbsp;·&nbsp;
+    <a href="https://www.npmjs.com/package/opal-zero">npm</a>
+    &nbsp;·&nbsp;
+    <a href="#five-minutes-to-first-result">Quickstart</a>
+    &nbsp;·&nbsp;
+    MIT
+  </p>
 </div>
 
-**A self-hosted multi-agent intelligence kernel.** Give it a plain-English intent; it plans, dispatches specialist agents, validates the output, and streams structured results back to your application in real time.
+---
 
-**[→ Official website & docs](https://albertobarnabo.com/opal-zero/)**
+Putting AI into your product normally means learning prompt engineering, context windows, tool-calling schemas, retries, model trade-offs, and how to wrangle messy model output into data you can actually use. That's a full-time job — an **AI engineer's** job.
+
+**OpalZero does that job for you.** Run one container, send a plain-English **intent** (and, optionally, the exact **shape** of the answer you want), and get back clean, structured data. No prompts. No model wiring. No output parsing. You keep writing your app.
+
+> ### OpalZero is the AI engineer you don't have to hire.
+
+```ts
+import { OpalZeroClient } from "opal-zero";
+
+const oz = new OpalZeroClient({ baseUrl: "http://localhost:8000" });
+
+for await (const e of oz.execute("Compare the top 3 EVs under $60k"))
+  if (e.type === "mission_complete") console.log(e.mission_state);
+```
+
+Five lines. Behind them, OpalZero planned the work, ran live web searches, analysed the findings, quality-checked the result, and handed back structured data.
+
+---
+
+## What you *don't* have to do
+
+The work of an AI engineer — handled by the kernel, so you never write it:
+
+| You'd normally have to… | OpalZero does it |
+|---|---|
+| Write and tune prompts for every task | The Planner generates them from your intent |
+| Pick a model, then rewrite when you switch | Swap OpenAI / Claude / local with one env var |
+| Wire up tools — web search, code, files, APIs | Agents call them from a built-in registry |
+| Add retries, validation, and quality control | The Governor scores every result and re-runs the gaps |
+| Parse freeform text into usable fields | Declare a schema; get exactly that shape back |
+| Stand up and babysit AI infrastructure | One self-hosted container — your keys, your data |
 
 ---
 
@@ -90,6 +130,28 @@ const { run, status, cards, activeAgent } = useOpalZero({ client });
 
 ---
 
+## Bring your own schema
+
+The promise — *clean, structured data, not a wall of text* — comes down to one feature: declare the shape you want, and the kernel is **contractually bound** to return exactly that. The Governor enforces it. No hallucinated fields, no missing keys, nothing to post-process.
+
+```ts
+for await (const e of oz.execute(
+  "Financial brief for Apple",
+  undefined,                       // model — omit for the server default
+  {                                // schema — your contract
+    price_usd:      "number",
+    market_cap_usd: "number",
+    competitors:    "array",
+  },
+)) {
+  if (e.type === "mission_complete") console.log(e.mission_state?.data_payload);
+}
+```
+
+To the kernel, every task is the same task: an intent and the shape of its answer. That's what lets you delegate *any* AI feature — not just the ones someone shipped a template for. Python (`oz.execute(intent, schema=...)`) and plain `curl` accept the same `schema` field.
+
+---
+
 ## Key capabilities
 
 | Capability | Description |
@@ -170,7 +232,7 @@ const client = new OpalZeroClient({
 });
 
 // Execute a mission
-client.execute(intent, model?)              // → AsyncGenerator<MissionEvent>
+client.execute(intent, model?, schema?)     // → AsyncGenerator<MissionEvent>
 
 // Manage missions
 client.missions.list()                      // → MissionSummary[]
