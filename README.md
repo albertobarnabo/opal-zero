@@ -34,6 +34,17 @@ Five lines. Behind them, OpalZero planned the work, ran live web searches, analy
 
 ---
 
+## 🔭 OpalGlimpse — our first product, built on OpalZero *(launching soon)*
+
+If OpalZero is the engine, **OpalGlimpse is the first thing we're building with it**: autonomous monitoring that watches markets, competitors, prices, or any signal on a schedule — and shows you **exactly what changed**, as structured diffs, not noise. *Watch the world change while you sleep.*
+
+It launches as a hosted SaaS, and **we deploy it once there's enough interest.** Want early access?
+
+- 👍 or comment on the **[OpalGlimpse early-access issue →](https://github.com/albertobarnabo/opal-zero-engine/issues/1)**
+- or email **albertobarnabo@gmail.com**
+
+---
+
 ## What you *don't* have to do
 
 The work of an AI engineer — handled by the kernel, so you never write it:
